@@ -27,7 +27,6 @@ requests==2.31.0
 Pillow==11.1.0
 numpy==1.26.3
 opencv-python-headless==4.9.0.80
-potrace==1.8
 
 # Security
 python-dotenv==1.0.0
