@@ -1,7 +1,6 @@
 """
 File validation and malware scanning service
 """
-importmagic
 import hashlib
 from typing import Tuple, Optional
 from PIL import Image
