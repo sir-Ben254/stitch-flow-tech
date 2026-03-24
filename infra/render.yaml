@@ -1,0 +1,76 @@
+# Render Blueprint Configuration for StitchFlow
+
+services:
+  # Backend API
+  - name: stitchflow-api
+    type: web
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: DARAJA_CONSUMER_KEY
+        sync: false
+      - key: DARAJA_CONSUMER_SECRET
+        sync: false
+      - key: DARAJA_SHORTCODE
+        sync: false
+      - key: DARAJA_PASSKEY
+        sync: false
+      - key: DARAJA_CALLBACK_URL
+        value: https://stitchflow-api.onrender.com/api/payments/callback
+      - key: REDIS_URL
+        fromService:
+          name: stitchflow-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: stitchflow-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: stitchflow-redis
+          property: connectionString
+
+  # Celery Worker
+  - name: stitchflow-worker
+    type: background worker
+    region: oregon
+    buildCommand: pip install -r worker/requirements.txt
+    startCommand: celery -A worker.tasks.processing worker --loglevel=info --concurrency=1
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          name: stitchflow-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: stitchflow-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: stitchflow-redis
+          property: connectionString
+
+  # Redis
+  - name: stitchflow-redis
+    type: redis
+    region: oregon
+    plan: free
+    maxMemory: 256
+
+# Note: Frontend should be deployed separately on Vercel or similar
+# The frontend can be connected to this backend via NEXT_PUBLIC_API_URL env var
