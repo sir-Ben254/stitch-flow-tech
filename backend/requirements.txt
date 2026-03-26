@@ -8,14 +8,14 @@ supabase==2.10.0
 sqlalchemy==2.0.25
 asyncpg==0.29.0
 
-# Authentication
-python-jose[cryptography]==3.3.0
+# Authentication - FIXED: python-jose without cryptography extra (HS256 doesn't need cryptography)
+python-jose==3.3.0
 passlib[bcrypt]==1.7.4
-bcrypt==4.1.2
+bcrypt==4.0.1
 
 # Rate Limiting
 slowapi==0.1.9
-redis==5.0.3
+redis==5.0.1
 
 # Background Tasks
 celery[redis]==5.3.6
@@ -24,9 +24,9 @@ celery[redis]==5.3.6
 requests==2.31.0
 
 # File Processing
-Pillow==11.1.0
+Pillow==10.2.0
 numpy==1.26.3
-opencv-python-headless==4.10.0.84
+opencv-python-headless==4.9.0.80
 
 # Security
 python-dotenv==1.0.0
@@ -34,5 +34,5 @@ httpx==0.26.0
 
 # Validation
 email-validator==2.1.0.post1
-pydantic==2.10.6
-pydantic-settings==2.7.1
+pydantic==2.5.3
+pydantic-settings==2.1.0

@@ -52,14 +52,24 @@ def update_wallet_balance(user_id: str, amount: float, operation: str = "add") -
     """Update wallet balance"""
     supabase = get_supabase_admin()
     
+    # Get current wallet
+    wallet = get_wallet(user_id)
+    if not wallet:
+        raise ValueError("Wallet not found")
+    
+    # Calculate new balance
     if operation == "add":
-        response = supabase.table("wallets").update(
-            {"balance": supabase.rpc("add_wallet_balance", {"p_user_id": user_id, "p_amount": amount})}
-        ).eq("user_id", user_id).execute()
+        new_balance = wallet["balance"] + amount
     else:
-        response = supabase.table("wallets").update(
-            {"balance": supabase.rpc("deduct_wallet_balance", {"p_user_id": user_id, "p_amount": amount})}
-        ).eq("user_id", user_id).execute()
+        new_balance = wallet["balance"] - amount
+        if new_balance < 0:
+            raise ValueError("Insufficient balance")
+    
+    # Update directly
+    response = supabase.table("wallets").update({
+        "balance": new_balance,
+        "updated_at": datetime.utcnow().isoformat()
+    }).eq("user_id", user_id).execute()
     
     return response.data[0]
 

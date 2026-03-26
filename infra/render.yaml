@@ -5,19 +5,23 @@ services:
   - name: stitchflow-api
     type: web
     region: oregon
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DEBUG
         value: false
+      - key: PIP_NO_CACHE_DIR
+        value: "off"
+      - key: TMPDIR
+        value: "/tmp"
       - key: SECRET_KEY
-        sync: false
+        sync: openssl rand -base64 32
       - key: SUPABASE_URL
-        sync: false
+        sync: https://fltcfkxgghmlwxisuwcr.supabase.co
       - key: SUPABASE_KEY
-        sync: false
+        sync: sb_publishable_BHPbppOwXLD5KCchIony4g_Sr1eVS7H
       - key: SUPABASE_SERVICE_KEY
-        sync: false
+        sync: sb_secret_oLhoeIWy0orYPTxW3OzV2A_NirMi-HP
       - key: DARAJA_CONSUMER_KEY
         sync: false
       - key: DARAJA_CONSUMER_SECRET
@@ -45,9 +49,13 @@ services:
   - name: stitchflow-worker
     type: background worker
     region: oregon
-    buildCommand: pip install -r worker/requirements.txt
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r worker/requirements.txt
     startCommand: celery -A worker.tasks.processing worker --loglevel=info --concurrency=1
     envVars:
+      - key: PIP_NO_CACHE_DIR
+        value: "off"
+      - key: TMPDIR
+        value: "/tmp"
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_KEY

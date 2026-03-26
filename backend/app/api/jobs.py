@@ -5,17 +5,13 @@ import uuid
 import os
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
-from fastapi.responses import FileResponse
 
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.schemas.schemas import JobCreate, JobResponse, JobStatus, UploadResponse
 from app.services import database, storage
-from worker.tasks import process_image
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
-
-# Pricing
 PRICING = {
     "simple": 100.0,   # KES
     "complex": 250.0,  # KES
@@ -93,7 +89,14 @@ async def upload_image(
     }).eq("id", job_id).execute()
     
     # Queue processing task
-    process_image.delay(job_id, file_url, complexity)
+    # Check if we're running with Celery or as standalone
+    if os.getenv("CELERY_BROKER_URL"):
+        from worker.tasks import process_image
+        process_image.delay(job_id, file_url, complexity)
+    else:
+        # Fallback: call processing directly (for testing/development)
+        from worker.tasks.processing import process_image
+        process_image(job_id, image_url=file_url, complexity=complexity)
     
     return {
         "upload_url": file_url,

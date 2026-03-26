@@ -1,11 +1,11 @@
 # Worker Requirements
 celery[redis]==5.3.6
-redis==5.0.3
+redis==5.0.1
 
-# Image Processing
-Pillow==11.1.0
+# Image Processing - FIXED: Use versions with binary wheels
+Pillow==10.2.0
 numpy==1.26.3
-opencv-python-headless==4.10.0.84
+opencv-python-headless==4.9.0.80
 
 # Database
 supabase==2.10.0
